@@ -1,0 +1,59 @@
+# Windows Zone.Identifier files
+*.Zone.Identifier
+*:Zone.Identifier
+
+# Stata files
+*.log
+*.smcl
+*.stpr
+*.gph
+*.dta.bak
+*.dta.tmp
+*.tmp
+
+# Stata temporary files
+*.tmp
+*~RF*.TMP
+*.TMP
+
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python (if used)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+
+
+# Backup files
+*.bak
+*.backup
+*~
+
