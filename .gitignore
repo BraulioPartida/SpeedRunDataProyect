@@ -17,7 +17,11 @@
 *.TMP
 
 # .NET build artifacts
-bin/
+*.dll
+*.json
+*.exe
+*.pdb
+release/
 obj/
 *.user
 *.suo

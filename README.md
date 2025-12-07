@@ -31,7 +31,7 @@ SpeedRunDataProyect/
 ├── SpeedDataMining/          # C# data collection application
 │   ├── Program.cs            # Main data collection script
 │   ├── SpeedData.csproj      # Project configuration
-│   └── bin/                  # Compiled binaries and output CSV files
+│   └── bin/                  # Output CSV files
 │
 ├── SpeedAnalisis/            # Stata analysis scripts
 │   ├── speedDataAnalisis3.do # Data processing and feature engineering
