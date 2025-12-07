@@ -177,19 +177,6 @@ preserve
     
     graph export "`graphs_folder'/top_20_by_risk_with_games.png", replace width(1600) height(1000)
 
-    * Chart 4: Grouped by game
-    graph hbar wr_probability, ///
-        over(player_name, sort(wr_probability) descending label(labsize(vsmall))) ///
-        over(game_short, label(labsize(vsmall))) ///
-        ytitle("Probability of WR", size(small)) ///
-        title("Top 20 WR Candidates Grouped by Game", size(medium) color(black)) ///
-        bar(1, color(navy*0.7) lcolor(navy)) ///
-        ylabel(0(0.2)1, format(%3.1f) labsize(small)) ///
-        graphregion(color(white) margin(medium)) bgcolor(white) ///
-        plotregion(margin(small)) ///
-        ysize(10)
-    
-    graph export "`graphs_folder'/top_20_grouped_by_game.png", replace width(1600) height(1200)
 
 restore
 
