@@ -9,14 +9,14 @@ set more off
 set seed 12345
 
 * --- 1. Data Loading with Error Handling --------------------------------
-capture confirm file "C:\Users\brown\Desktop\‌\ITAM\DDD\Proyect\SpeedAnalisis\speedrun_panel3.dta"
+capture confirm file "SpeedAnalisis/speedrun_panel3.dta"
 if _rc {
     di as error "Error: speedrun_panel3.dta not found!"
     di as error "Please run speedDataAnalisis3.do first to generate the panel dataset."
     exit 111
 }
 
-use "C:\Users\brown\Desktop\‌\ITAM\DDD\Proyect\SpeedAnalisis\speedrun_panel3.dta", clear
+use "SpeedAnalisis/speedrun_panel3.dta", clear
 
 * Check required variables
 capture confirm variable WR_next_30_days

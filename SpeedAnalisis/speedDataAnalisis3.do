@@ -1,7 +1,7 @@
 *******************************************************
 * LOAD RAW RUNS WITH ENHANCED FEATURES
 *******************************************************
-import delimited "C:\Users\brown\Desktop\‌\ITAM\DDD\Proyect\SpeedDataMining\bin\Debug\net10.0\speedrun_data_nombres.csv", clear
+import delimited "...\Proyect\SpeedDataMining\bin\Debug\net10.0\speedrun_data_names.csv", clear
 
 * Rename time_seconds to time for consistency
 rename time_seconds time

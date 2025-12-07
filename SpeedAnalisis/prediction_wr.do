@@ -7,14 +7,14 @@ clear all
 set more off
 
 * --- 1. Data Loading with Error Handling --------------------------------
-capture confirm file "C:\Users\brown\Desktop\‌\ITAM\DDD\Proyect\SpeedAnalisis\wr_predictions_test.dta"
+capture confirm file "SpeedAnalisis/wr_predictions_test.dta"
 if _rc {
     di as error "Error: wr_predictions_test.dta not found!"
     di as error "Please run regression3.do first to generate predictions."
     exit 111
 }
 
-use "C:\Users\brown\Desktop\‌\ITAM\DDD\Proyect\SpeedAnalisis\wr_predictions_test.dta", clear
+use "SpeedAnalisis/wr_predictions_test.dta", clear
 
 * Check required variables exist
 capture confirm variable wr_probability WR_next_30_days player_name game_name category_name

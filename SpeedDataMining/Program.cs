@@ -15,6 +15,7 @@ namespace SpeedrunDataPuller
         private static readonly HttpClient client = new HttpClient();
         private const string BASE_URL = "https://www.speedrun.com/api/v1";
         private static List<RunRecord> allRuns = new List<RunRecord>();
+        private static Dictionary<string, string> playerNameCache = new Dictionary<string, string>();
 
         static async Task Main(string[] args)
         {
@@ -63,11 +64,12 @@ namespace SpeedrunDataPuller
                     Console.WriteLine($"  ERROR: {ex.Message}");
                 }
 
-                Console.WriteLine($"  Total runs collected so far: {allRuns.Count}\n");
+                Console.WriteLine($"  Total runs collected so far: {allRuns.Count}");
+                Console.WriteLine($"  Unique players cached: {playerNameCache.Count}\n");
             }
 
             // Export to CSV
-            string filename = $"speedrun_data.csv";
+            string filename = $"speedrun_data_names.csv";
             ExportToCsv(filename);
 
             Console.WriteLine($"\n=== COMPLETE ===");
@@ -75,6 +77,53 @@ namespace SpeedrunDataPuller
             Console.WriteLine($"Exported to: {filename}");
             Console.WriteLine("\nPress any key to exit.");
             Console.ReadKey();
+        }
+
+        static async Task<string> GetPlayerName(string playerId)
+        {
+            // Check cache first
+            if (playerNameCache.ContainsKey(playerId))
+            {
+                return playerNameCache[playerId];
+            }
+
+            try
+            {
+                // If it's a guest name (doesn't look like an ID), return as-is
+                if (!playerId.Contains("x") && !playerId.Contains("j") && playerId.Length < 8)
+                {
+                    playerNameCache[playerId] = playerId;
+                    return playerId;
+                }
+
+                var response = await client.GetStringAsync($"{BASE_URL}/users/{playerId}");
+                var doc = JsonDocument.Parse(response);
+                var data = doc.RootElement.GetProperty("data");
+
+                string playerName = playerId; // Default fallback
+
+                if (data.TryGetProperty("names", out var names))
+                {
+                    if (names.TryGetProperty("international", out var intlName))
+                    {
+                        playerName = intlName.GetString();
+                    }
+                }
+
+                // Cache the result
+                playerNameCache[playerId] = playerName;
+                
+                // Small delay to avoid rate limiting
+                await Task.Delay(100);
+                
+                return playerName;
+            }
+            catch
+            {
+                // If lookup fails, cache the ID as the name
+                playerNameCache[playerId] = playerId;
+                return playerId;
+            }
         }
 
         static async Task ProcessGameForStata(string gameId)
@@ -122,6 +171,32 @@ namespace SpeedrunDataPuller
                     if (categoryLookup.ContainsKey(run.category_id))
                     {
                         run.category_name = categoryLookup[run.category_id];
+                    }
+                }
+
+                // Fetch player names (with progress indicator)
+                Console.WriteLine($"  Fetching player names...");
+                var uniquePlayerIds = runs.Select(r => r.player_id).Distinct().ToList();
+                int playerCount = 0;
+                foreach (var playerId in uniquePlayerIds)
+                {
+                    if (!playerNameCache.ContainsKey(playerId))
+                    {
+                        await GetPlayerName(playerId);
+                        playerCount++;
+                        if (playerCount % 10 == 0)
+                        {
+                            Console.WriteLine($"    Resolved {playerCount}/{uniquePlayerIds.Count} player names...");
+                        }
+                    }
+                }
+
+                // Update runs with resolved player names
+                foreach (var run in runs)
+                {
+                    if (playerNameCache.ContainsKey(run.player_id))
+                    {
+                        run.player_name = playerNameCache[run.player_id];
                     }
                 }
 
@@ -274,7 +349,6 @@ namespace SpeedrunDataPuller
             {
                 try
                 {
-                    // FIXED: Removed embed parameter to avoid parsing issues
                     var response = await client.GetStringAsync(
                         $"{BASE_URL}/runs?game={gameId}&max=200&offset={offset}&orderby=submitted&direction=desc");
                     var doc = JsonDocument.Parse(response);
@@ -295,18 +369,18 @@ namespace SpeedrunDataPuller
                             if (player.TryGetProperty("id", out var id))
                             {
                                 playerId = id.GetString();
-                                playerName = id.GetString(); // Default to ID
+                                playerName = playerId; // Will be resolved later
                                 break;
                             }
                             else if (player.TryGetProperty("name", out var name))
                             {
                                 playerId = name.GetString();
-                                playerName = name.GetString();
+                                playerName = name.GetString(); // Guest name
                                 break;
                             }
                         }
 
-                        // FIXED: Extract category ID (handle both string and object cases)
+                        // Extract category ID
                         string categoryId = "";
                         try
                         {
@@ -533,7 +607,7 @@ namespace SpeedrunDataPuller
         }
     }
 
-    // Data models
+    // Data models (same as before)
     class GameInfo
     {
         public string name { get; set; }
