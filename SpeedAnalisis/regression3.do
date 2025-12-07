@@ -30,13 +30,10 @@ drop if missing(var90) | missing(pb_percentile) | missing(mean_attempts_per_day)
 
 * Create output folders
 local graphs_folder "C:\Users\brown\Desktop\‌\ITAM\DDD\Proyect\SpeedAnalisis\graphs_regression3"
-local results_folder "C:\Users\brown\Desktop\‌\ITAM\DDD\Proyect\SpeedAnalisis\results_regression3"
 capture mkdir "`graphs_folder'"
-capture mkdir "`results_folder'"
 
 di as text "Output folders created/verified"
 di as text "  Graphs: `graphs_folder'"
-di as text "  Results: `results_folder'"
 di as text ""
 
 * --- 2. Train / Test Split --------------------------------------------
@@ -461,9 +458,6 @@ di as text "========================================================="
 logit WR_next_30_days $Xvars if train == 1
 estimates store logit_full
 
-* Export logit results
-estimates save "`results_folder'/logit_estimates.ster", replace
-
 * --- 12. Feature Set Comparison --------------------------------------
 di as text ""
 di as text "========================================================="
@@ -500,54 +494,7 @@ di as text "---------------------------------------------------------"
 di as text "Improvement:        " %9.4f (`sens_full' - `sens_base') "      " %9.4f (`spec_full' - `spec_base')
 di as text ""
 
-* --- 13. Export Results to Excel -------------------------------------
-di as text "Exporting results to Excel..."
-
-preserve
-    * Create summary table
-    clear
-    set obs 3
-    gen model = ""
-    gen auc = .
-    gen threshold_opt = .
-    gen accuracy = .
-    gen sensitivity = .
-    gen specificity = .
-    gen precision = .
-    gen f1 = .
-    
-    replace model = "OLS" in 1
-    replace auc = ${auc_reg} in 1
-    replace threshold_opt = ${thresh_opt_reg} in 1
-    replace accuracy = ${acc_opt_reg} in 1
-    replace sensitivity = ${sens_opt_reg} in 1
-    replace specificity = ${spec_opt_reg} in 1
-    replace precision = ${prec_opt_reg} in 1
-    replace f1 = ${f1_opt_reg} in 1
-    
-    replace model = "LASSO" in 2
-    replace auc = ${auc_cvlasso} in 2
-    replace threshold_opt = ${thresh_opt_cvlasso} in 2
-    replace accuracy = ${acc_opt_cvlasso} in 2
-    replace sensitivity = ${sens_opt_cvlasso} in 2
-    replace specificity = ${spec_opt_cvlasso} in 2
-    replace precision = ${prec_opt_cvlasso} in 2
-    replace f1 = ${f1_opt_cvlasso} in 2
-    
-    replace model = "LOGIT" in 3
-    replace auc = ${auc_logit} in 3
-    replace threshold_opt = ${thresh_opt_logit} in 3
-    replace accuracy = ${acc_opt_logit} in 3
-    replace sensitivity = ${sens_opt_logit} in 3
-    replace specificity = ${spec_opt_logit} in 3
-    replace precision = ${prec_opt_logit} in 3
-    replace f1 = ${f1_opt_logit} in 3
-    
-    export excel using "`results_folder'/model_comparison_results.xlsx", ///
-        firstrow(variables) replace sheet("Model Comparison")
-restore
-
-* --- 14. Save predictions for visualization -------------------------
+* --- 13. Save predictions for visualization -------------------------
 preserve
     keep if train == 0
     keep player_id category_id player_name category_name game_name ///
@@ -566,8 +513,6 @@ di as text "  - wr_predictions_test.dta (predictions for visualization)"
 di as text "  - `graphs_folder'/roc_curve_logit.png"
 di as text "  - `graphs_folder'/roc_curve_lasso.png"
 di as text "  - `graphs_folder'/roc_curve_ols.png"
-di as text "  - `results_folder'/model_comparison_results.xlsx (Excel summary)"
-di as text "  - `results_folder'/logit_estimates.ster (saved estimates)"
 di as text ""
 di as text "Ready for top WR candidates visualization!"
 di as text ""
