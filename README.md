@@ -244,7 +244,6 @@ The analysis produces:
    - Detailed candidate breakdowns by game and category
 
 Results are saved in:
-- `results_regression3/`: Model outputs and Excel exports
 - `graphs_regression3/`: Model evaluation graphs
 - `graphs/`: WR candidate visualizations
 
